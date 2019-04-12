@@ -5,23 +5,27 @@
 
 #define BYTE_ENVIADO 0b10000000
 
-volatile uint8_t x = 0;
+volatile uint8_t ledVerde = 61;
+volatile uint8_t ledVermelho = 61;
 volatile uint8_t z = 0;
 
 ISR(TIMER0_OVF_vect) {
-  x++;
-  if (x < 61) {
-    PORTB |= 0b00100000;
-  } else if (x < 122) {
-    PORTB &= 0b11011111;
+  if (ledVerde < 61) {
+    PORTD |= 0b00000001;
+    x++;
   } else
-    x = 0;
+    PORTD &= 0b11111110;
+  if (ledVermelho < 61) {
+    PORTD |= 0b00000010;
+    x++;
+  } else
+    PORTD &= 0b11111101;
 }
 
 
 int main(void) {
   char BYTE_RECEBIDO[8][8];
-  
+
   DDRB &= 0b11111110;  //Pino PB0 como entrada (push-button)
   PORTB |= 0b00000001; //Pino PB0 com pull-up
 
@@ -67,4 +71,12 @@ int main(void) {
     }
   }
 
+}
+
+void acessoLiberado() {
+  ledVerde = 0;
+}
+
+void acessoNegado() {
+  ledVermelho = 0;
 }
