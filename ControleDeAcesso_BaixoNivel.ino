@@ -24,6 +24,38 @@ ISR(TIMER0_OVF_vect) {
 }
 
 
+
+bool ehCadastrado(char *tag){
+  return false;
+  bool ehIgual = false;
+  for(int i=0; i<3; i++){
+    for(int j=0; j<8; j++){
+      if(tag[j] != dataSource[i][j]){
+        ehIgual = false;
+        break;  
+      }
+      else ehIgual = true;
+    }
+    if(ehIgual)break;
+  }
+  return ehIgual;
+}
+
+void acessoLiberado() {
+  ledVerde = 0;
+}
+
+bool ehNulo(char* tag){
+  for(int i=0;i<8;i++){
+    if(tag[i]!=0) return false;
+  }
+  return true;  
+}
+
+void acessoNegado() {
+  ledVermelho = 0;
+}
+
 int main(void) {  
   
   char BYTE_RECEBIDO[8];
@@ -73,12 +105,11 @@ int main(void) {
 
       if(z>0)BYTE_RECEBIDO[z-1] = SPDR;
       z++;
-      Serial.print(BYTE_RECEBIDO[z]);
     }
-
-    if(ehCadastrado(BYTE_RECEBIDO))acessoLiberado();
-    else acessoNegado();
-    Serial.print(PINB);
+    if(!ehNulo(BYTE_RECEBIDO)){
+      if(ehCadastrado(BYTE_RECEBIDO))acessoLiberado();
+      else acessoNegado();
+    }
     if(!(PINB & 0b00000001)) acessoLiberado();
 
     // ADCSRA |= _BV(ADSC);
@@ -86,27 +117,4 @@ int main(void) {
     // valorAD = ADC;
   }
 
-}
-
-bool ehCadastrado(char *tag){
-  bool ehIgual = false;
-  for(int i=0; i<3; i++){
-    for(int j=0; j<8; j++){
-      if(tag[j] != dataSource[i][j]){
-        ehIgual = false;
-        break;  
-      }
-      else ehIgual = true;
-    }
-    if(ehIgual)break;
-  }
-  return ehIgual;
-}
-
-void acessoLiberado() {
-  ledVerde = 0;
-}
-
-void acessoNegado() {
-  ledVermelho = 0;
 }
