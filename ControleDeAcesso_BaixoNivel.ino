@@ -5,6 +5,8 @@
 
 #define BYTE_ENVIADO 0b10000000
 
+char dataSource[3][8];
+
 volatile uint8_t ledVerde = 61;
 volatile uint8_t ledVermelho = 61;
 volatile uint8_t z = 0;
@@ -23,8 +25,8 @@ ISR(TIMER0_OVF_vect) {
 }
 
 
-int main(void) {
-  char BYTE_RECEBIDO[8][8];
+int main(void) {  
+  char BYTE_RECEBIDO[8];
 
   DDRB &= 0b11111110;  //Pino PB0 como entrada (push-button)
   PORTB |= 0b00000001; //Pino PB0 com pull-up
@@ -56,14 +58,17 @@ int main(void) {
   sei();                          //Habilita a interrupção
 
   while (1) {
+    z=0;
     while (z < 8) {
       //Transmite dados para o escravo
       //Nível PC0 vai para baixo
       PORTB &= 0b11111011;
       SPDR = BYTE_ENVIADO;
       while (!(SPSR & (0b10000000)));
-      BYTE_RECEBIDO[z++] = SPDR;
+        BYTE_RECEBIDO[z++] = SPDR;
     }
+    if(ehCadastrado(BYTE_RECEBIDO))acessoLiberado();
+    else acessoNegado();
 
     ADCSRA |= 0b01000000;
     while (!(ADCSRA & 0b00010000)) {
@@ -71,6 +76,21 @@ int main(void) {
     }
   }
 
+}
+
+bool ehCadastrado(char *tag){
+  bool ehIgual = false;
+  for(int i=0; i<3; i++){
+    for(int j=0; j<8; j++){
+      if(tag[j] != dataSource[i][j]){
+        ehIgual = false;
+        break;  
+      }
+      else ehIgual = true;
+    }
+    if(ehIgual)break;
+  }
+  return ehIgual;
 }
 
 void acessoLiberado() {
