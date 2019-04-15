@@ -4,7 +4,7 @@
 #include <arduino.h>
 
 #define BYTE_ENVIADO 0b10000000
-#define QTD_BYTES  4
+#define QTD_BYTES  12
 unsigned char dataSource[3][QTD_BYTES];
 
 volatile uint8_t ledVerde = 61;
@@ -68,8 +68,8 @@ int main(void) {
 
       while (!(SPSR & (0b10000000)));
 
-//      Serial.print("\n");
-//      Serial.print(SPDR, BIN);
+      Serial.print("\n");
+      Serial.print(SPDR, BIN);
       if (z > 0)BYTE_RECEBIDO[z - 1] = SPDR;
       z++;
     }
@@ -114,7 +114,7 @@ bool ehCadastrado(unsigned char *tag) {
 
 // Verifica se o valor recebido é nulo, significando a ausência de cartão ou má leitura.
 bool ehNulo(unsigned char* tag) {
-  for (int i = 0; i < QTD_BYTES; i++) {
+  for (int i = 8; i < QTD_BYTES; i++) {
     if (tag[i] != (unsigned char)128 && tag[i] != (unsigned char)0) return false;
   }
   return true;
